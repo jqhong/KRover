@@ -3,6 +3,7 @@
 #include <limits.h>
 #include <stdlib.h>
 
+#include "VMState.h"
 
 // print color setting
 #define COLOR_NONE "\033[0m"
@@ -18,8 +19,10 @@ void perror(char *const msg){ //TODO
 using namespace z3;
 using namespace Z3HANDLER;
 
-z3::context g_z3_context;
-z3::solver g_solver(g_z3_context);
+static z3::context g_z3_context;
+static z3::solver g_solver(g_z3_context);
+// z3::context g_z3_context;
+// z3::solver g_solver(g_z3_context);
 
 Z3Handler::Z3Handler() : context_(g_z3_context){}
 
@@ -30,29 +33,27 @@ Z3Handler::~Z3Handler(){}
  */
 std::map<std::string, unsigned long long> Z3Handler::Z3SolveOne(std::set<KVExprPtr> constraints){
     std::map<std::string, unsigned long long> ret;
-    //z3::context con (context_);
-    //z3::solver g_solver(context_);
     g_solver.reset();
-    //expr exprs = context_.bool_val(1);
+    expr exprs = context_.bool_val(1);
     for (auto it = constraints.begin(); it != constraints.end(); it++){
-        //exprs = exprs and Z3HandlingExprPtr(*it);
-        expr expr_temp = Z3HandlingExprPtr(*it);
-        g_solver.add(expr_temp);
+        exprs = exprs and Z3HandlingExprPtr(*it);
+        //expr expr_temp = Z3HandlingExprPtr(*it);
+        //g_solver.add(expr_temp);
     }
-    //g_solver.add(exprs);
-    std::cout << "solver: " << g_solver <<  std::endl;
+    g_solver.add(exprs);
+    // std::cout << "solver: " << g_solver <<  std::endl;
     // produce .smt2 file which can be used in other solvers
     //std::cout << "smt2 :" << g_solver.to_smt2() << "\n done" << std::endl;
     switch (g_solver.check()){
         case sat: {
-                std::cout << "SAT" << std::endl;
+                // std::cout << "SAT" << std::endl;
                 model m = g_solver.get_model();
-                std::cout << "m---size : " << m.size() << std::endl;
+                // std::cout << "m size " << m.size() << std::endl;
                 for (unsigned i = 0; i < m.size(); i++) {
                     func_decl v = m[i];
                     // this problem contains only constants
                     assert(v.arity() == 0);
-                    std::cout << v.name() << " = " << m.get_const_interp(v) << "\n";
+                    //std::cout << v.name() << " = " << m.get_const_interp(v) << "\n";
                     ret.insert(std::pair<std::string, unsigned long long>(v.name().str(), m.get_const_interp(v).get_numeral_uint64()));
                 }
                 break;
@@ -77,144 +78,48 @@ std::map<std::string, unsigned long long> Z3Handler::Z3SolveOne(std::set<KVExprP
  * Output: a bool value : true/false
  *
 */
-bool Z3Handler::Z3SolveConcritize(std::vector<VMState::SYMemObject*> symobjs, std::set<KVExprPtr> constraints){
+bool Z3Handler::Z3SolveConcretize(std::vector<VMState::SYMemObject*> symobjs, std::set<KVExprPtr> constraints){
     bool ret;
     //z3::solver Solver(context_);
     symObjectsMap.clear(); // reset map to be null
-    //z3::solver g_solver(g_z3_context);
-    z3::solver g_solver(context_);
     g_solver.reset();
     expr exprs = context_.bool_val(1);
     for (auto it = constraints.begin(); it != constraints.end(); it++){
         exprs = exprs & Z3HandlingExprPtr(*it);
     }
     g_solver.add(exprs);
+    // std::cout << "checking sat/unsat before concritization: " << g_solver.check() << std::endl;
 
-#ifdef _DEBUG_OUTPUT
-    std::cout << "checking sat/unsat before concritization: " << g_solver.check() << std::endl;
-    std::cout << g_solver << std::endl;
-    std::cout << "++++++++++++++" << std::endl;
-#endif
+    // std::cout << g_solver << std::endl;
+    // std::cout << "++++++++++++++" << std::endl;
 
-    //if (symobjs.size() != values.size()) {
-    //    printf("\033[47;31m Z3 Handlering ERROR : The number of corresponding symbols and values under concritization is not the same! \033[0m\n");
-    //    exit(1); //shoud we just exit?
-    //}
+    // if (symobjs.size() != values.size()) {
+    //     printf("\033[47;31m Z3 Handlering ERROR : The number of corresponding symbols and values under concritization is not the same! \033[0m\n");
+    //     exit(1); //shoud we just exit?
+    // }
     for (int i = 0; i < symobjs.size(); i++){
         // checking whether the input obj exists in the corrent constraints, raise an error if no;
-        // if (symObjectsMap.find(symobjs[i]) == symObjectsMap.end()) {
-        //     printf("\033[47;31m Z3 Handlering ERROR : The input symbolic object is not in the current constraints! \033[0m\n");
-        //     //throw symobjs[i];
-        // }
+        if (symObjectsMap.find(symobjs[i]) == symObjectsMap.end()) {
+            printf("\033[47;31m Z3 Handlering ERROR : The input symbolic object is not in the current constraints! \033[0m\n");
+            //throw symobjs[i];
+        }
         // otherwise, get the symbolic expr in Z3 and add the extra constraint
-        // write constraints based on different size
-        switch (symobjs[i]->size){
-            case 1: { // 1 bytes
-                if (symobjs[i]->is_signed) {
-                    expr value_expr = context_.bv_val(symobjs[i]->i8, 1 * 8);
-                    //g_solver.add(symObjectsMap[symobjs[i]] == value_expr); // why this can not work? strange---
-                    for (auto it = symObjectsMap.begin(); it != symObjectsMap.end(); it ++){
-                        if (it->first == symobjs[i]) {
-                            expr sym_expr = it->second;
-                            g_solver.add(sym_expr == value_expr);
-                            break;
-                        }
-                    }
-                }
-                else {
-                    expr value_expr = context_.bv_val(symobjs[i]->u8, 1 * 8);
-                    for (auto it = symObjectsMap.begin(); it != symObjectsMap.end(); it ++){
-                        if (it->first == symobjs[i]) {
-                            expr sym_expr = it->second;
-                            g_solver.add(sym_expr == value_expr);
-                            break;
-                        }
-                    }
-                }
-                break;
-            }
-            case 2: { // 2 bytes
-                if (symobjs[i]->is_signed) {
-                    expr value_expr = context_.bv_val(symobjs[i]->i16, 2 * 8);
-                    for (auto it = symObjectsMap.begin(); it != symObjectsMap.end(); it ++){
-                        if (it->first == symobjs[i]) {
-                            expr sym_expr = it->second;
-                            g_solver.add(sym_expr == value_expr);
-                            break;
-                        }
-                    }
-                }
-                else {
-                    expr value_expr = context_.bv_val(symobjs[i]->u16, 2 * 8);
-                    for (auto it = symObjectsMap.begin(); it != symObjectsMap.end(); it ++){
-                        if (it->first == symobjs[i]) {
-                            expr sym_expr = it->second;
-                            g_solver.add(sym_expr == value_expr);
-                            break;
-                        }
-                    }
-                }
-                break;
-            }
-            case 4: { // 4 bytes
-                if (symobjs[i]->is_signed) {
-                    expr value_expr = context_.bv_val(symobjs[i]->i32, 4 * 8);
-                    for (auto it = symObjectsMap.begin(); it != symObjectsMap.end(); it ++){
-                        if (it->first == symobjs[i]) {
-                            expr sym_expr = it->second;
-                            g_solver.add(sym_expr == value_expr);
-                            break;
-                        }
-                    }
-                }
-                else {
-                    expr value_expr = context_.bv_val(symobjs[i]->u32, 4 * 8);
-                    for (auto it = symObjectsMap.begin(); it != symObjectsMap.end(); it ++){
-                        if (it->first == symobjs[i]) {
-                            expr sym_expr = it->second;
-                            g_solver.add(sym_expr == value_expr);
-                            break;
-                        }
-                    }
-                }
-                break;
-            }
-            case 8: { // 8 bytes
-                if (symobjs[i]->is_signed) {
-                    expr value_expr = context_.bv_val(symobjs[i]->i64, 8 * 8);
-                    for (auto it = symObjectsMap.begin(); it != symObjectsMap.end(); it ++){
-                        if (it->first == symobjs[i]) {
-                            expr sym_expr = it->second;
-                            g_solver.add(sym_expr == value_expr);
-                            break;
-                        }
-                    }
-                }
-                else {
-                    expr value_expr = context_.bv_val(symobjs[i]->u64, 8 * 8);
-                    for (auto it = symObjectsMap.begin(); it != symObjectsMap.end(); it ++){
-                        if (it->first == symobjs[i]) {
-                            expr sym_expr = it->second;
-                            g_solver.add(sym_expr == value_expr);
-                            break;
-                        }
-                    }
-                }
-                break;
-            }
-            default: {
-                printf("\033[47;31m Z3 Handlering ERROR : the concritized value has an unsupported size ! \033[0m\n");
-                break;
+        // expr value_expr = context_.bv_val(values[i], 32); // any bad effects when it's 64-bit?
+        // expr value_expr = context_.bv_val(symobjs[i]->i32, 32); // any bad effects when it's 64-bit?
+        expr value_expr = context_.bv_val(symobjs[i]->i64, 64); // any bad effects when it's 64-bit?
+        // std::cout << "-------------" << symobjs[i]->i32 << std::endl;
+        for (auto it = symObjectsMap.begin(); it != symObjectsMap.end(); it ++){
+            if (it->first == symobjs[i]) {
+                // std::cout << "-------------" << std::endl;
+                expr sym_expr = it->second;
+                // exprs = exprs and (sym_expr == value_expr);
+                // break;
+                g_solver.add(sym_expr == value_expr);
             }
         }
     }
-
-#ifdef _DEBUG_OUTPUT
-    std::cout << "checking sat/unsat after concritization: " << g_solver.check() << std::endl;
-    std::cout << g_solver << std::endl;
-#endif
-    // produce .smt2 file which can be used in other solvers
-    //std::cout << "smt2 :" << g_solver.to_smt2() << "\n done" << std::endl;
+    // std::cout << "checking sat/unsat after concritization: " << g_solver.check() << std::endl;
+    // std::cout << g_solver << std::endl;
     if (g_solver.check() == sat)
         ret = true;
     else
@@ -429,11 +334,6 @@ z3::expr Z3Handler::Z3HandlingExprPtr(ExprPtr ptr){
         }
         case Expr::Kind::Extract:{
             return Z3HandleExtract(ptr);
-        }
-        case Expr::Kind::CombineMultiExpr: {
-            CombineMultiExpr * m_expr = static_cast<CombineMultiExpr*>(ptr.get());
-            std::vector<ExprPtr> exprs = m_expr->getMultiExprPtr();
-            return Z3HandleCombineMulti(exprs);
         }
         default:{
             printf("\033[47;31m Z3 Handlering ERROR : Unsupported type of EXPR? No such type! \033[0m\n");
@@ -666,8 +566,7 @@ z3::expr Z3Handler::Z3HandleLNot(ExprPtr ptr){
         throw lnot_expr;
     }
     expr x = Z3HandlingExprPtr(lnot_expr->getExprPtr());
-    //expr ret = Z3HandleDistinct(lnot_expr->getExprPtr());
-    //expr ret = Z3HandleEqual(lnot_expr->getExprPtr());
+    // expr ret = Z3HandleDistinct(lnot_expr->getExprPtr());
     expr ret = (! x); // TODO need to confirm: compare with zero?
     //expr ret = !x;
     return ret;
@@ -718,30 +617,6 @@ z3::expr Z3Handler::Z3HandleExtract(ExprPtr ptr){
     //std::cout << "start : " << s << std::endl;
     //std::cout << "end : " << e << std::endl;
     // Finally, it should be 32-bit
-    return x.extract(e*8 - 1, s); // looks different with the existing implementation
+    return x.extract(e*8+32 - 1, s+32); // looks different with the existing implementation
     //return x.extract(63,  32); // looks different with the existing implementation
-}
-
-
-z3::expr Z3Handler::Z3HandleCombineMulti(std::vector<ExprPtr> exprs){
-    // check input size
-    int vec_size = exprs.size();
-    if (vec_size == 0 || vec_size < 2 ){
-        printf("\033[47;31m Z3 Handlering ERROR : CombineMultiExpr Failed (the vector size is not appliable for combining) \033[0m\n");
-        throw exprs;
-    }
-    // check ExprPtr size
-    for (int i = 0 ; i < exprs.size(); i++){
-        int expr_size = exprs[i]->getExprSize();
-        if (expr_size > 8 || expr_size < 0)
-            printf("\033[47;31m Z3 Handlering ERROR : CombineMultiExpr Failed (the size of ExprPtr is < 0 or > 8) \033[0m\n");
-    }
-    expr combmulti_expr = Z3HandlingExprPtr(exprs[0]);
-    int nu = 1;
-    for (; nu < exprs.size(); nu ++){
-        combmulti_expr = z3::concat(combmulti_expr, Z3HandlingExprPtr(exprs[nu]));
-        if (nu == exprs.size() - 1)
-           break;
-    }
-    return combmulti_expr;
 }

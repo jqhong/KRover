@@ -1517,7 +1517,7 @@ bool CThinCtrl::_mayOperandUseSymbol_XX(OprndInfoPtr &oi) {
                                     assert(imm.defined);
                                     long cval = imm.convert<long>();
                                     KVExprPtr eptr;
-                                    eptr.reset(new ConstExpr(cval));
+                                    eptr.reset(new ConstExpr(cval, IMM->size(), 0));
                                     KVE.push_back(eptr);
                                 }
                                 else

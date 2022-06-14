@@ -123,8 +123,8 @@ bool Symbol_List_Map::SplitCell3 (SymCellPtr &insertAfter, SymCellPtr &insertBef
     p2_s = p3_a - p2_a ;
 
     KVExprPtr e1(new ExtractExpr(insertAfter->exprPtr, 0, p1_s)) ;
-    KVExprPtr e3(new ExtractExpr(insertAfter->exprPtr, (p3_a-p1_a), (p3_a-p1_a) + p3_s)) ;
-    KVExprPtr e2(new ExtractExpr(insertAfter->exprPtr, (p2_a-p1_a), (p2_a-p1_a) + p2_s)) ;
+    KVExprPtr e3(new ExtractExpr(insertAfter->exprPtr, (p3_a-p1_a), p3_s)) ;
+    KVExprPtr e2(new ExtractExpr(insertAfter->exprPtr, (p2_a-p1_a), p2_s)) ;
     SymCellPtr p3(new SymCell(p3_a, p3_s, e3)) ;
     SymCellPtr p2(new SymCell(p2_a, p2_s, e2)) ;
 
@@ -158,7 +158,7 @@ bool Symbol_List_Map::SeplitCell_Head(SymCellPtr &insertAfter, int64_t header_st
     int p1_s = header_start-insertAfter->addr, p2_s = insertAfter->addr+insertAfter->size - header_start ;
 
     KVExprPtr e1(new ExtractExpr(insertAfter->exprPtr, 0, p1_s)) ;
-    KVExprPtr e2(new ExtractExpr(insertAfter->exprPtr, (p2_a-p1_a), (p2_a-p1_a) + p2_s)) ;
+    KVExprPtr e2(new ExtractExpr(insertAfter->exprPtr, p2_a-p1_a, p2_s)) ;
     
     SymCellPtr p2(new SymCell(p2_a, p2_s, e2)) ;
     
@@ -183,7 +183,7 @@ bool Symbol_List_Map::SeplitCell_Tail(SymCellPtr &insertBefore, int64_t tail_end
     int64_t p2_a = tail_end, p1_a = insertBefore->addr;
     int p2_s = insertBefore->addr+insertBefore->size - tail_end, p1_s = tail_end-insertBefore->addr;
 
-    KVExprPtr e2(new ExtractExpr(insertBefore->exprPtr, (tail_end-insertBefore->addr), (tail_end-insertBefore->addr) + p2_s)) ;
+    KVExprPtr e2(new ExtractExpr(insertBefore->exprPtr, tail_end-insertBefore->addr, p2_s)) ;
     KVExprPtr e1(new ExtractExpr(insertBefore->exprPtr, 0, p1_s)) ;
     
     SymCellPtr p1(new SymCell(p1_a, p1_s, e1)) ;
@@ -336,7 +336,7 @@ bool Symbol_List_Map::GetExpr (int64_t addr, int size, int64_t concreteV, KVExpr
         while (next_addr < tmp->addr) {
             uint8_t* c_val = (uint8_t*)&concreteV ;
 
-            KVExprPtr c_expr (new ConstExpr(c_val[next_addr], 1, 0)) ;
+            KVExprPtr c_expr (new ConstExpr(c_val[next_addr])) ;
 
             sizes.push_back (1) ;
             offsets.push_back (next_addr) ;
@@ -356,7 +356,7 @@ bool Symbol_List_Map::GetExpr (int64_t addr, int size, int64_t concreteV, KVExpr
     while (next_addr < size) {
         uint8_t* c_val = (uint8_t*)&concreteV ;
 
-        KVExprPtr c_expr (new ConstExpr(c_val[next_addr], 1, 0)) ;
+        KVExprPtr c_expr (new ConstExpr(c_val[next_addr])) ;
 
         sizes.push_back (1) ;
         offsets.push_back (next_addr) ;
@@ -366,7 +366,7 @@ bool Symbol_List_Map::GetExpr (int64_t addr, int size, int64_t concreteV, KVExpr
         next_addr++ ;
     }
     if (i>1) {
-        e.reset(new CombineMultiExpr(exprs, offsets, sizes, size, 0)) ;
+        e.reset(new CombineMultiExpr(exprs, offsets, sizes, 0, size)) ;
     } else {
         e = cellList->exprPtr ;
     }

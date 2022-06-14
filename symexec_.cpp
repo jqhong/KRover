@@ -438,7 +438,7 @@ bool SymExecutor::process_add(VMState *vm, InstrInfoPtr &infoptr) {
         long v2;
         res = oisrc2->getConValue(v2);
         assert(res);
-        ExprPtr c2(new ConstExpr(v2, oisrc2->size, 0));
+        ExprPtr c2(new ConstExpr(v2));
         oe.reset(new AddExpr(e1, c2));
         res = oidst->setSymValue(vm, oe);
         assert(res);
@@ -452,7 +452,7 @@ bool SymExecutor::process_add(VMState *vm, InstrInfoPtr &infoptr) {
         long v1;
         res = oisrc1->getConValue(v1);
         assert(res);
-        ExprPtr c1(new ConstExpr(v1, oisrc1->size, 0));
+        ExprPtr c1(new ConstExpr(v1));
         oe.reset(new AddExpr(c1, e2));
         res = oidst->setSymValue(vm, oe);
         assert(res);
@@ -492,7 +492,7 @@ bool SymExecutor::process_test(VMState *vm, InstrInfoPtr &infoptr) {
         long v2;
         res = oisrc2->getConValue(v2);
         assert(res);
-        ExprPtr c2(new ConstExpr(v2, oisrc2->size, 0));
+        ExprPtr c2(new ConstExpr(v2));
         oe.reset(new AndExpr(e1, c2));
     }
 
@@ -504,7 +504,7 @@ bool SymExecutor::process_test(VMState *vm, InstrInfoPtr &infoptr) {
         long v1;
         res = oisrc1->getConValue(v1);
         assert(res);
-        ExprPtr c1(new ConstExpr(v1, oisrc1->size, 0));
+        ExprPtr c1(new ConstExpr(v1));
         oe.reset(new AndExpr(c1, e2));
     } else {
         ERRR_ME("Unexpected operands");
@@ -585,7 +585,7 @@ bool SymExecutor::process_cmp(VMState *vm, InstrInfoPtr &infoptr) {
         long v2;
         res = oisrc2->getConValue(v2);
         assert(res);
-        ExprPtr c2(new ConstExpr(v2, oisrc2->size, 0));
+        ExprPtr c2(new ConstExpr(v2));
         oe.reset(new SubExpr(e1, c2));
     }
 
@@ -597,7 +597,7 @@ bool SymExecutor::process_cmp(VMState *vm, InstrInfoPtr &infoptr) {
         long v1;
         res = oisrc1->getConValue(v1);
         assert(res);
-        ExprPtr c1(new ConstExpr(v1,oisrc1->size, 0));
+        ExprPtr c1(new ConstExpr(v1));
         oe.reset(new SubExpr(c1, e2));
     } else {
         ERRR_ME("Unexpected operands");
@@ -636,7 +636,7 @@ bool SymExecutor::process_sub(VMState *vm, InstrInfoPtr &infoptr) {
         long v2;
         res = oisrc2->getConValue(v2);
         assert(res);
-        ExprPtr c2(new ConstExpr(v2, oisrc2->size, 0));
+        ExprPtr c2(new ConstExpr(v2));
         oe.reset(new SubExpr(e1, c2));
         res = oidst->setSymValue(vm, oe);
         assert(res);
@@ -650,7 +650,7 @@ bool SymExecutor::process_sub(VMState *vm, InstrInfoPtr &infoptr) {
         long v1;
         res = oisrc1->getConValue(v1);
         assert(res);
-        ExprPtr c1(new ConstExpr(v1, oisrc1->size, 0));
+        ExprPtr c1(new ConstExpr(v1));
         oe.reset(new SubExpr(c1, e2));
         res = oidst->setSymValue(vm, oe);
         assert(res);
@@ -691,7 +691,7 @@ bool SymExecutor::process_and(VMState *vm, InstrInfoPtr &infoptr) {
         long v2;
         res = oisrc2->getConValue(v2);
         assert(res);
-        ExprPtr c2(new ConstExpr(v2, oisrc2->size, 0));
+        ExprPtr c2(new ConstExpr(v2));
         oe.reset(new AndExpr(e1, c2));
         res = oidst->setSymValue(vm, oe);
         assert(res);
@@ -705,7 +705,7 @@ bool SymExecutor::process_and(VMState *vm, InstrInfoPtr &infoptr) {
         long v1;
         res = oisrc1->getConValue(v1);
         assert(res);
-        ExprPtr c1(new ConstExpr(v1, oisrc1->size, 0));
+        ExprPtr c1(new ConstExpr(v1));
         oe.reset(new AndExpr(c1, e2));
         res = oidst->setSymValue(vm, oe);
         assert(res);
@@ -746,7 +746,7 @@ bool SymExecutor::process_or(VMState *vm, InstrInfoPtr &infoptr) {
         long v2;
         res = oisrc2->getConValue(v2);
         assert(res);
-        ExprPtr c2(new ConstExpr(v2, oisrc2->size, 0));
+        ExprPtr c2(new ConstExpr(v2));
         oe.reset(new OrExpr(e1, c2));
         res = oidst->setSymValue(vm, oe);
         assert(res);
@@ -760,7 +760,7 @@ bool SymExecutor::process_or(VMState *vm, InstrInfoPtr &infoptr) {
         long v1;
         res = oisrc1->getConValue(v1);
         assert(res);
-        ExprPtr c1(new ConstExpr(v1, oisrc1->size, 0));
+        ExprPtr c1(new ConstExpr(v1));
         oe.reset(new OrExpr(c1, e2));
         res = oidst->setSymValue(vm, oe);
         assert(res);
@@ -802,7 +802,7 @@ bool SymExecutor::process_xor(VMState *vm, InstrInfoPtr &infoptr) {
         long v2;
         res = oisrc2->getConValue(v2);
         assert(res);
-        ExprPtr c2(new ConstExpr(v2, oisrc2->size, 0));
+        ExprPtr c2(new ConstExpr(v2));
         oe.reset(new XorExpr(e1, c2));
         res = oidst->setSymValue(vm, oe);
         assert(res);
@@ -816,7 +816,7 @@ bool SymExecutor::process_xor(VMState *vm, InstrInfoPtr &infoptr) {
         long v1;
         res = oisrc1->getConValue(v1);
         assert(res);
-        ExprPtr c1(new ConstExpr(v1, oisrc1->size, 0));
+        ExprPtr c1(new ConstExpr(v1));
         oe.reset(new XorExpr(c1, e2));
         res = oidst->setSymValue(vm, oe);
         assert(res);
@@ -849,7 +849,7 @@ bool SymExecutor::process_shl_sal(VMState *vm, InstrInfoPtr &infoptr) {
     long v2;
     res = oisrc2->getConValue(v2);
     assert(res);
-    ExprPtr c2(new ConstExpr(v2, oisrc2->size, 0));
+    ExprPtr c2(new ConstExpr(v2));
     KVExprPtr oe(new Shl_SalExpr(e1, c2));
     res = oidst->setSymValue(vm, oe);
 
@@ -878,7 +878,7 @@ bool SymExecutor::process_shr(VMState *vm, InstrInfoPtr &infoptr) {
     long v2;
     res = oisrc1->getConValue(v2);
     assert(res);
-    ExprPtr c2(new ConstExpr(v2, oisrc2->size, 0));
+    ExprPtr c2(new ConstExpr(v2));
     KVExprPtr oe(new ShrExpr(e1, c2));
     res = oidst->setSymValue(vm, oe);
     assert(res);
@@ -907,7 +907,7 @@ bool SymExecutor::process_sar(VMState *vm, InstrInfoPtr &infoptr) {
     long v2;
     res = oisrc1->getConValue(v2);
     assert(res);
-    ExprPtr c2(new ConstExpr(v2, oisrc2->size, 0));
+    ExprPtr c2(new ConstExpr(v2));
     KVExprPtr oe(new SarExpr(e1, c2));
     res = oidst->setSymValue(vm, oe);
     assert(res);
@@ -936,7 +936,7 @@ bool SymExecutor::process_idiv(VMState *vm, InstrInfoPtr &infoptr) {
         else {
             res = o_d->getConValue(v_d) ;
             assert (res) ;
-            e_d.reset(new ConstExpr(v_d, o_d->size, 0)) ;
+            e_d.reset(new ConstExpr(v_d)) ;
         }
          if(o_a->symb) {
             res = o_a->getSymValue(e_a) ;
@@ -945,17 +945,17 @@ bool SymExecutor::process_idiv(VMState *vm, InstrInfoPtr &infoptr) {
         else {
             res = o_a->getConValue(v_a) ;
             assert (res) ;
-            e_a.reset(new ConstExpr(v_a, o_a->size, 0)) ;
+            e_a.reset(new ConstExpr(v_a)) ;
         }
     } else {
         // dx:ax both not symbol, we may need a 128bits int.
         res = o_d->getConValue(v_d) ;
         assert (res) ;
-        e_d.reset(new ConstExpr(v_d, o_d->size, 0)) ;
+        e_d.reset(new ConstExpr(v_d)) ;
         
         res = o_a->getConValue(v_a) ;
         assert (res) ;
-        e_a.reset(new ConstExpr(v_a, o_a->size, 0)) ;
+        e_a.reset(new ConstExpr(v_a)) ;
     }
 
     e_Dividend.reset(new CombineExpr(e_d, e_a, o_d->size, o_a->size, o_d->size + o_a->size, 0)) ;
@@ -966,7 +966,7 @@ bool SymExecutor::process_idiv(VMState *vm, InstrInfoPtr &infoptr) {
     } else {
         res = o_Divisor->getConValue(v_Divisor) ;
         assert (res) ;
-        e_Divisor.reset(new ConstExpr(v_Divisor, o_Divisor->size, 0)) ;
+        e_Divisor.reset(new ConstExpr(v_Divisor)) ;
     }
 
     KVExprPtr e_Quotient(new iDivExpr(e_Dividend, e_Divisor, o_Divisor->size, 0));
@@ -1011,7 +1011,7 @@ bool SymExecutor::process_mul(VMState *vm, InstrInfoPtr &infoptr) {
     else {
         res = o_a->getConValue(v_a) ;
         assert (res) ;
-        e_a.reset(new ConstExpr(v_a, o_a->size, 0)) ;
+        e_a.reset(new ConstExpr(v_a)) ;
     }
     if(o_m->symb) {
         res = o_m->getSymValue(e_m) ;
@@ -1020,7 +1020,7 @@ bool SymExecutor::process_mul(VMState *vm, InstrInfoPtr &infoptr) {
     else {
         o_m->getConValue(v_m) ;
         assert (res) ;
-        e_m.reset(new ConstExpr(v_m, o_m->size, 0)) ;
+        e_m.reset(new ConstExpr(v_m)) ;
     }
 
     if(!o_a->symb && !o_m->symb) {

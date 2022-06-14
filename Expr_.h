@@ -194,10 +194,7 @@ class ConstExpr : public Expr {
     uint64_t V;
 
    public:
-    //ConstExpr(uint64_t value) {
-    //    V = value;
-    //}
-    ConstExpr(uint64_t value, int sz, int off) :Expr(sz, off) {
+    ConstExpr(uint64_t value) {
         V = value;
     }
 
@@ -217,7 +214,7 @@ class BinExpr : public Expr {
     ExprPtr getR() {return R;}
     ExprPtr getL() {return L;}
 
-    BinExpr(ExprPtr r, ExprPtr l) : R(r), L(l), Expr(r->size, 0) {}
+    BinExpr(ExprPtr r, ExprPtr l) : R(r), L(l) {}
     BinExpr(ExprPtr r, ExprPtr l, int sz, int off) : Expr(sz, off), R(r), L(l) {}
 
    public:
@@ -591,7 +588,7 @@ class TriExpr : public Expr {
 
 class ShrdExpr :public TriExpr {
     public:
-    ShrdExpr(ExprPtr r, ExprPtr m, ExprPtr l) :TriExpr(r, m, l, r->size, 0) {exprID = EXPR_Shrd;}
+    ShrdExpr(ExprPtr r, ExprPtr m, ExprPtr l) :TriExpr(r, m, l) {exprID = EXPR_Shrd;}
     ShrdExpr(ExprPtr r, ExprPtr m, ExprPtr l, int sz, int off) : TriExpr(r, m, l, sz, off) {exprID = EXPR_Shrd;}
 
     // @THX add the implemenation of the virtual function
@@ -605,7 +602,7 @@ class CombineExpr :public BinExpr {
     public:
     int rsz, lsz ;
     // r is high bytes, l is low bytes.
-    //CombineExpr(ExprPtr r, ExprPtr l, int rsize, int lsize) :BinExpr(r, l) {exprID = EXPR_Combine;rsz=rsize; lsz=lsize;}
+    CombineExpr(ExprPtr r, ExprPtr l, int rsize, int lsize) :BinExpr(r, l) {exprID = EXPR_Combine;rsz=rsize; lsz=lsize;}
     CombineExpr(ExprPtr r, ExprPtr l, int rsize, int lsize, int sz, int off) : BinExpr(r, l, sz, off) {exprID = EXPR_Combine;rsz=rsize; lsz=lsize;}
 
     // @THX add the implemenation of the virtual function
