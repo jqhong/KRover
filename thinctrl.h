@@ -38,6 +38,14 @@ using namespace ParseAPI;
 using namespace InstructionAPI;
 // class CodeRegion;
 // class CodeSource;
+
+static __attribute__ ((noinline)) unsigned long long rdtsc(void)
+{
+    unsigned hi, lo;
+    asm volatile ("rdtsc" : "=a"(lo), "=d"(hi));
+    // asm volatile ("int $3;\n\t");
+    return ((unsigned long long) lo | ((unsigned long long) hi << 32));
+}
 /* MyCodeRegion */
 // class PARSER_EXPORT MyCodeRegion : public CodeRegion {
 class MyCodeRegion : public CodeRegion {
@@ -107,6 +115,7 @@ class PARSER_EXPORT MyCodeSource: public CodeSource {
 
 
 class CThinCtrl {
+    public:
     MyCodeSource* m_sts;
     CodeObject* m_co;
     CodeRegion* m_cr;
@@ -140,6 +149,8 @@ class CThinCtrl {
 
     /* to concretely execute one instruction */
     bool ExecOneInsn(ulong addr);
+    
+    bool hasSymOperand(Instruction* in);
 
    private:
     // CThinCtrl(VMState *VM);  // used for unit-testing
@@ -175,7 +186,6 @@ class CThinCtrl {
     bool OpdhasSymReg(Operand* OP);
     bool OpdhasSymMemCell(Operand* OP, ulong gs_base);
     bool checkImplicitMemAccess(Instruction *I);
-    bool hasSymOperand(Instruction* in);
 };
 
 #endif  // !_THINCTRL_H__

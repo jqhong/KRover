@@ -158,11 +158,13 @@ bool EFlagsManager::ConcreteFlag (entryID instrID, bool bExecute) {
  //       case e_jmpq:
  //       case e_jmpe:
 
-            asm("int3");
+            assert(0);
+            // asm("int3");
             break ;   
 
         default:
-            asm("int3");
+            assert(0);
+            // asm("int3");
             break;
     }
     return true ;
@@ -198,7 +200,8 @@ bool EFlagsManager::DoCreateConstraint(int exprID, bool bExecute) {
     if (m_LastExpr)
         cstnt = (CreateExprByID(exprID, m_LastExpr, NULL, NULL, m_LastExpr->size, m_LastExpr->offset));
     else
-        asm("int3") ;
+        assert(0);
+        // asm("int3") ;
 
     if (!bExecute)
         cstnt.reset(new LNotExpr(cstnt, cstnt->size, cstnt->offset)) ;
@@ -337,11 +340,13 @@ bool EFlagsManager::CreateConstraint(entryID instrID, bool bExecute) {
  //       case e_jmpq:
  //       case e_jmpe:
 
-            asm("int3");
+            assert(0);
+            // asm("int3");
             break ;   
 
         default:
-            asm("int3");
+            assert(0);
+            // asm("int3");
             break;
     }
     
@@ -569,11 +574,13 @@ bool EFlagsManager::DependencyFlagConcreted(entryID instrID, bool &bExecute) {
  //       case e_jmpq:
  //       case e_jmpe:
 
-            asm("int3");
+            assert(0);
+            // asm("int3");
             break ;   
 
         default:
-            asm("int3");
+            assert(0);
+            // asm("int3");
             break;
     }
     return (ret) ;
@@ -658,11 +665,12 @@ bool EFlagsManager::SolveConstraints () {
 
     std::map<std::string, unsigned long long> ret_result;
     ret_result = m_Z3Handler->Z3SolveOne(m_Constraint); // now the [symbolic name, concrete value] map will be returned
+#ifdef _DEBUG_OUTPUT
     printf ("result size: %d. \n", ret_result.size());
     for (auto it = ret_result.begin(); it != ret_result.end(); it ++){
         std::cout << "symbol : " << it->first << "   value : " << it->second << std::endl;
     }
-
+#endif
     return true ;
 }
 
@@ -756,15 +764,14 @@ bool EFlagsManager::EvalCondition(entryID insnID)
         constraints.insert(exprPtr);
         bExecute = m_Z3Handler->Z3SolveConcritize(symobjs, constraints);
         
-        std::cout << "----------bExecute: " << bExecute << std::endl; 
-
         if (!bExecute)
             exprPtr.reset(new LNotExpr(exprPtr, exprPtr->size, exprPtr->offset)) ;
        
-// #ifdef _DEBUG_OUTPUT 
+#ifdef _DEBUG_OUTPUT 
+        std::cout << "----------bExecute: " << bExecute << std::endl; 
         exprPtr->print() ;
         std::cout << "\n" ;
-// #endif
+#endif
         
         m_Constraint.insert(exprPtr) ;
 
@@ -789,7 +796,8 @@ KVExprPtr EFlagsManager::DoGetCondition(int exprID) {
     if (m_LastExpr)
         cstnt = (CreateExprByID(exprID, m_LastExpr, NULL, NULL, m_LastExpr->size, m_LastExpr->offset));
     else
-        asm("int3") ;
+        assert(0);
+        // asm("int3") ;
 
     // EvalDecision()
 
@@ -923,11 +931,13 @@ KVExprPtr EFlagsManager::GetCondition(entryID instrID) {
  //       case e_jmpq:
  //       case e_jmpe:
 
-            asm("int3");
+            assert(0);
+            // asm("int3");
             break ;   
 
         default:
-            asm("int3");
+            assert(0);
+            // asm("int3");
             break;
     }
     

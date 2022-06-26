@@ -40,19 +40,25 @@ std::map<std::string, unsigned long long> Z3Handler::Z3SolveOne(std::set<KVExprP
         g_solver.add(expr_temp);
     }
     //g_solver.add(exprs);
+#ifdef _DEBUG_OUTPUT
     std::cout << "solver: " << g_solver <<  std::endl;
+#endif
     // produce .smt2 file which can be used in other solvers
     //std::cout << "smt2 :" << g_solver.to_smt2() << "\n done" << std::endl;
     switch (g_solver.check()){
         case sat: {
-                std::cout << "SAT" << std::endl;
                 model m = g_solver.get_model();
+#ifdef _DEBUG_OUTPUT
+                std::cout << "SAT" << std::endl;
                 std::cout << "m---size : " << m.size() << std::endl;
+#endif
                 for (unsigned i = 0; i < m.size(); i++) {
                     func_decl v = m[i];
                     // this problem contains only constants
                     assert(v.arity() == 0);
+#ifdef _DEBUG_OUTPUT
                     std::cout << v.name() << " = " << m.get_const_interp(v) << "\n";
+#endif
                     ret.insert(std::pair<std::string, unsigned long long>(v.name().str(), m.get_const_interp(v).get_numeral_uint64()));
                 }
                 break;

@@ -87,22 +87,22 @@ bool ExecState::processAt(ulong addr) {
     //         :::"%rax");
    
     
-    // declareSymbolicObject(tmp, 4, 19, "niceval_rdx"); 
-    // declareSymbolicObject(tmp, 8, 19, "niceval_rdx"); 
-    declareSymbolicObject(tmp, 8, 1, 19, "niceval_rdx"); 
-    tmp += 0x8;
-    // declareSymbolicObject(tmp, 4, 0x0, "who_rsi"); 
-    // declareSymbolicObject(tmp, 8, 0x0, "who_rsi"); 
-    declareSymbolicObject(tmp, 8, 1, 0x0, "who_rsi"); 
-    // // printf ("who : %d. \n", *((unsigned long*)tmp));
-    tmp += 0x8;
-    // // // // // printf ("which : %d. \n", *((unsigned long*)tmp));
-    // declareSymbolicObject(tmp, 4, 0x0, "which_rdi"); 
-    // declareSymbolicObject(tmp, 8, 0x0, "which_rdi"); 
-    declareSymbolicObject(tmp, 8, 1, 0x0, "which_rdi"); 
-    // declareSymbolicObject(tmp, 4, 0x3, "which_rdi"); 
+    // // declareSymbolicObject(tmp, 4, 19, "niceval_rdx"); 
+    // // declareSymbolicObject(tmp, 8, 19, "niceval_rdx"); 
+    // declareSymbolicObject(tmp, 8, 1, 19, "niceval_rdx"); 
+    // tmp += 0x8;
+    // // declareSymbolicObject(tmp, 4, 0x0, "who_rsi"); 
+    // // declareSymbolicObject(tmp, 8, 0x0, "who_rsi"); 
+    // declareSymbolicObject(tmp, 8, 1, 0x0, "who_rsi"); 
+    // // // printf ("who : %d. \n", *((unsigned long*)tmp));
+    // tmp += 0x8;
+    // // // // // // printf ("which : %d. \n", *((unsigned long*)tmp));
+    // // declareSymbolicObject(tmp, 4, 0x0, "which_rdi"); 
+    // // declareSymbolicObject(tmp, 8, 0x0, "which_rdi"); 
+    // declareSymbolicObject(tmp, 8, 1, 0x0, "which_rdi"); 
+    // // declareSymbolicObject(tmp, 4, 0x3, "which_rdi"); 
 
-    // // declareSymbolicObject(tmp, 8); 
+    // declareSymbolicObject(tmp, 8); 
    
     // asm volatile ("movq $0xfff, %%rax; \n\t"
     //         "vmcall; \n\t"

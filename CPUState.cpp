@@ -368,7 +368,8 @@ bool SYCPUState::regIdxToAddrSize(int idx, uint64_t &addr, int &size) {
             break ;
         
         default :
-            asm("int3") ;
+            // asm("int3") ;
+            assert(0);
     }
     return true ;
 }

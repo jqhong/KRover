@@ -232,13 +232,16 @@ Architecture MyCodeSource::getArch() const
 }
 /* / */
 
-static __attribute__ ((noinline)) unsigned long long rdtsc(void)
-{
-    unsigned hi, lo;
-    asm volatile ("rdtsc" : "=a"(lo), "=d"(hi));
-    // asm volatile ("int $3;\n\t");
-    return ((unsigned long long) lo | ((unsigned long long) hi << 32));
-}
+unsigned long long tt0, tt1, tt;
+unsigned long long ttt0, ttt1, ttt;
+
+// static __attribute__ ((noinline)) unsigned long long rdtsc(void)
+// {
+//     unsigned hi, lo;
+//     asm volatile ("rdtsc" : "=a"(lo), "=d"(hi));
+//     // asm volatile ("int $3;\n\t");
+//     return ((unsigned long long) lo | ((unsigned long long) hi << 32));
+// }
 
 class PrintVisitor : public Visitor {
     public:
@@ -319,6 +322,8 @@ CThinCtrl::CThinCtrl(VMState* VM, ulong adds, ulong adde) {
     printf ("high: %lx. \n", m_cr->high());
     m_SymExecutor.reset(new SymExecutor());
     m_ConExecutor.reset(new ConExecutor());
+
+    m_ConExecutor.get()->m_ThinCtrl = this;
     
     m_EFlagsMgr = m_VM->m_EFlagsMgr;
 }
@@ -648,7 +653,7 @@ bool CThinCtrl::updateJCCDecision(Instruction* in, struct pt_regs* m_regs, ulong
     bool bExecute = false;
     entryID temp_operation_id = in->getOperation().getID();
     
-    unsigned long long tt0, tt1, tt;
+    // unsigned long long tt0, tt1, tt;
     
     if (!dependFlagCon(in, bExecute))
     {
@@ -663,8 +668,8 @@ bool CThinCtrl::updateJCCDecision(Instruction* in, struct pt_regs* m_regs, ulong
         /* Evaluate bExecute based on concrete value of symbols */
         bExecute = m_EFlagsMgr->EvalCondition(in->getOperation().getID());
         tt1 = rdtsc();
-        tt = (tt1-tt0);
-        printf ("tt0: %lx, tt1: %lx, tt: %lx. \n", tt0, tt1, tt);
+        tt += (tt1-tt0);
+        // printf ("tt0: %lx, tt1: %lx, tt: %lx. \n", tt0, tt1, tt);
                         
         // std::cout << "bExecute: " << bExecute << std::endl; 
         
@@ -1038,8 +1043,8 @@ bool CThinCtrl::processFunction(unsigned long addr) {
     uint64_t func_count = 0;
 
     unsigned long long t0, t1, t;
-    unsigned long long tt0, tt1, tt;
-    unsigned long long ttt0, ttt1, ttt;
+    // unsigned long long tt0, tt1, tt;
+    // unsigned long long ttt0, ttt1, ttt;
 
     int uni_insn = 0;
     tt = tt0 = tt1 = 0;
@@ -1108,9 +1113,10 @@ bool CThinCtrl::processFunction(unsigned long addr) {
             I = decoder->decode((unsigned char *)m_cr->getPtrToInstruction(crtAddr));
             in = new Instruction(I);
             m_InsnCache[idx] = in;
-
-            printf ("insn not found in cache :%lx. \n", crtAddr);
-            
+#ifdef _DEBUG_OUTPUT
+            printf ("----insn not found in cache :%lx. \n", crtAddr);
+#endif
+            printf ("----insn not found in cache :%lx. \n", crtAddr);
             // tt1 = rdtsc();
             // tt += (tt1-tt0);
         }
@@ -1167,6 +1173,7 @@ bool CThinCtrl::processFunction(unsigned long addr) {
                 }
             case c_CallInsn:
                 {
+#ifdef _DEBUG_OUTPUT
                     /* count how many symbolic regs in call */
                     func_count ++;
                     int symreg_count = 0;
@@ -1187,6 +1194,7 @@ bool CThinCtrl::processFunction(unsigned long addr) {
                     else
                         printf ("%d func. call at: %lx. \n", func_count, crtAddr);
                     /* / */
+#endif
 
                     dispatchCall(in, m_regs);
                     break;
@@ -1213,8 +1221,14 @@ bool CThinCtrl::processFunction(unsigned long addr) {
                         // m_EFlagsMgr->CreateConstraint(in->getOperation().getID(), bExecute) ;
         
                         /* Evaluate bExecute based on concrete value of symbols */
+                        tt0 = rdtsc();
                         bExecute = m_EFlagsMgr->EvalCondition(in->getOperation().getID());
+                        tt1 = rdtsc();
+                        tt += (tt1-tt0);
+                        // printf ("tt0: %lx, tt1: %lx, tt: %lx. \n", tt0, tt1, tt);
+#ifdef _DEBUG_OUTPUT
                         std::cout << "bExecute: " << bExecute << std::endl; 
+#endif
                         m_EFlagsMgr->ConcreteFlag(in->getOperation().getID(), bExecute) ;
 
                         if (bExecute == false)
@@ -1268,16 +1282,40 @@ bool CThinCtrl::processFunction(unsigned long addr) {
                             // std::cout << in->format() << std::endl;
                             // tt0 = rdtsc();
 
-                            m_ConExecutor->InsnDispatch(in, m_regs);
+                            /* Instruction CIE */
+                            // m_ConExecutor->InsnDispatch(in, m_regs);
+                            // if (m_EFlagsMgr->isFlagChangingInstr(in->getOperation().getID()))
+                            // {
+                            //     m_VM->clearAllSymFlag();
+                            // }
+
+                            /* Instrumentation based block CIE */
+                            shouldSymExe = m_ConExecutor->BlockDispatch(crtAddr, m_regs);
+                            if (shouldSymExe)
+                            {
+                                crtAddr = m_regs->rip;
+                                idx = crtAddr & 0xFFFFFFF; 
+                                in = m_InsnCache[idx];
+                                assert(in);
+                                // if (m_InsnCache[idx] != nullptr)
+                                // {
+                                //     // printf ("insn hit , crtAddr: %lx. \n", crtAddr);
+                                //     in = m_InsnCache[idx];
+                                // }
+                                
+                                InstrInfo *ioi = new InstrInfo(in);
+                                parseOperands(ioi);
+                                InstrInfoPtr ptr(ioi);
+                                m_SymExecutor->pushInstr(ptr);
+                                m_SymExecutor->run(m_VM);
+                                
+                                m_regs->rip += in->size();
+                            }
                             
                             // tt1 = rdtsc();
                             // tt = tt1 - tt0;
                             // printf ("one con insn cpu cyles: %ld. \n", tt);
 
-                            if (m_EFlagsMgr->isFlagChangingInstr(in->getOperation().getID()))
-                            {
-                                m_VM->clearAllSymFlag();
-                            }
                         }
                     }
                     break;
@@ -1302,16 +1340,17 @@ bool CThinCtrl::processFunction(unsigned long addr) {
             t1 = rdtsc();
             printf ("t0: %llx, t1: %llx, t: %llx. \n", t0, t1, t1-t0);
             printf ("tt: %llx. \n", tt);
+            t = t1 - t0;
+            printf ("t - tt: %lx. \n", t-tt);
             printf ("uniq insn: %d. \n", uni_insn);
             printf ("SE ends~~~~~~~~~~~~, total insn %lld. symbolic flag depend insn: %lld, symbolic executed insn: %lld. \n", insn_count, symFlag_count, symExe_count);
 
-            m_EFlagsMgr->PrintConstraint();
             tt0 = rdtsc();
             m_EFlagsMgr->SolveConstraints();
             tt1 = rdtsc();
             tt = tt1 - tt0;
             printf ("tt: %llx. \n", tt);
-            printf ("tt0: %lx, tt1: %lx, tt: %lx. \n", tt0, tt1, tt);
+            m_EFlagsMgr->PrintConstraint();
             printf ("SE ends~~~~~~~~~~~~, rax: %lx. \n", m_regs->rax);
             break;
         }

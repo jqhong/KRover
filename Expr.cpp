@@ -120,7 +120,8 @@ KVExprPtr CreateExprByID(int id, KVExprPtr R, KVExprPtr M, KVExprPtr L, int size
         case EXPR_Shl		 :
         case EXPR_LShr		 :
         case EXPR_AShr		 :
-            asm ("int3") ;
+            // asm ("int3") ;
+            assert(0);
             break ;
 
         case EXPR_Equal		 :
@@ -169,7 +170,8 @@ KVExprPtr CreateExprByID(int id, KVExprPtr R, KVExprPtr M, KVExprPtr L, int size
         case EXPR_SignEXT    :
         case EXPR_ZeroEXT    :
         case EXPR_Shrd       :
-            asm ("int3") ;
+            assert(0);
+            // asm ("int3") ;
             break ;
         default :
             break ;

@@ -18,7 +18,8 @@ using namespace EXPR;
 // #define ADDR_TO_KEY(addr) ((addr)&0xFFFFFFFFFFFFFFFL)
 #define ADDR_TO_KEY(addr) ((addr)&0x7FFFFFFFFFFFFFFL)
 
-Symbol_List_Map::Symbol_List_Map () {
+Symbol_List_Map::Symbol_List_Map ():m_listheader(), m_listtail() {
+// Symbol_List_Map::Symbol_List_Map () {
     // list head, list tail
     m_listheader.reset(new SymCell((int64_t) (0xF000000000000000), 0, NULL)) ;
     m_listtail.reset(new SymCell(0x7FFFFFFFFFFFFFFLL, 0, NULL)) ;

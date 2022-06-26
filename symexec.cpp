@@ -114,7 +114,8 @@ bool SymExecutor::run(VMState *vm) {
             case e_addss:
             case e_addsubpd:
             case e_addsubps: {
-                asm("int3");
+                assert(0);
+                // asm("int3");
             } break ;
 
             case e_add: {
@@ -126,7 +127,8 @@ bool SymExecutor::run(VMState *vm) {
             case e_subsd:
             case e_subss:            {
                 // Process substraction
-                asm("int3");
+                assert(0);
+                // asm("int3");
             } break;
 
             case e_sub: {
@@ -150,14 +152,16 @@ bool SymExecutor::run(VMState *vm) {
             case e_mulps:
             case e_mulsd:
             case e_mulss: {
-                asm("int3") ;
+                assert(0);
+                // asm("int3") ;
             } break;
             case e_div:
             case e_divpd:
             case e_divps:
             case e_divsd:
             case e_divss: {
-                asm("int3");
+                assert(0);
+                // asm("int3");
             } break;
 
             case e_and: {
@@ -169,7 +173,8 @@ bool SymExecutor::run(VMState *vm) {
             case e_andpd:
             case e_andps: {
                 //  Process logical and
-                asm("int3");
+                assert(0);
+                // asm("int3");
             } break;
             case e_or: {
                 process_or(vm, IOI);
@@ -177,7 +182,8 @@ bool SymExecutor::run(VMState *vm) {
             }
             case e_orpd:
             case e_orps: {
-                asm("int3");
+                assert(0);
+                // asm("int3");
             } break;
             case e_not: {
                 process_not(vm, IOI);
@@ -298,7 +304,8 @@ bool SymExecutor::run(VMState *vm) {
   
             default: {
                 cout << "2802: instruction: " << I->format() << "\n";
-                asm("int3");
+                assert(0);
+                // asm("int3");
             } break;
         }
         
@@ -390,8 +397,9 @@ bool SymExecutor::process_mov(VMState *vm, InstrInfoPtr &infoptr) {
         // Do reading
         res = oisrc->getSymValue (cellList, val) ;
         assert(res);
-
+#ifdef _DEBUG_OUTPUT
         printCellList (cellList) ;
+#endif
         // Do writting
         res = oidst->setSymValue(vm, cellList, val);
         
@@ -458,7 +466,8 @@ bool SymExecutor::process_add(VMState *vm, InstrInfoPtr &infoptr) {
         assert(res);
     } else {
         ERRR_ME("Unexpected operands");
-        asm("int3");
+        assert(0);
+        // asm("int3");
     }
     vm->SaveFlagChangingInstructionExpr(e_add, oe) ;
     return true ;
@@ -508,7 +517,8 @@ bool SymExecutor::process_test(VMState *vm, InstrInfoPtr &infoptr) {
         oe.reset(new AndExpr(c1, e2));
     } else {
         ERRR_ME("Unexpected operands");
-        asm("int3");
+        assert(0);
+        // asm("int3");
     }
     vm->SaveFlagChangingInstructionExpr(e_test, oe) ;
     return true;   
@@ -601,7 +611,8 @@ bool SymExecutor::process_cmp(VMState *vm, InstrInfoPtr &infoptr) {
         oe.reset(new SubExpr(c1, e2));
     } else {
         ERRR_ME("Unexpected operands");
-        asm("int3");
+        assert(0);
+        // asm("int3");
     }
     res = vm->SaveFlagChangingInstructionExpr(e_cmp, oe) ;
     assert (res) ;
@@ -656,7 +667,8 @@ bool SymExecutor::process_sub(VMState *vm, InstrInfoPtr &infoptr) {
         assert(res);
     } else {
         ERRR_ME("Unexpected operands");
-        asm("int3");
+        assert(0);
+        // asm("int3");
     }
     res = vm->SaveFlagChangingInstructionExpr(e_sub, oe) ;
     assert (res) ;
@@ -711,7 +723,8 @@ bool SymExecutor::process_and(VMState *vm, InstrInfoPtr &infoptr) {
         assert(res);
     } else {
         ERRR_ME("Unexpected operands");
-        asm("int3");
+        assert(0);
+        // asm("int3");
     }
     res = vm->SaveFlagChangingInstructionExpr(e_and, oe) ;
     assert (res) ;
@@ -766,7 +779,8 @@ bool SymExecutor::process_or(VMState *vm, InstrInfoPtr &infoptr) {
         assert(res);
     } else {
         ERRR_ME("Unexpected operands");
-        asm("int3");
+        assert(0);
+        // asm("int3");
     }
 
     res = vm->SaveFlagChangingInstructionExpr(e_or, oe) ;
@@ -822,7 +836,8 @@ bool SymExecutor::process_xor(VMState *vm, InstrInfoPtr &infoptr) {
         assert(res);
     } else {
         ERRR_ME("Unexpected operands");
-        asm("int3");
+        assert(0);
+        // asm("int3");
     }
 
     res = vm->SaveFlagChangingInstructionExpr(e_xor, oe) ;
@@ -1079,7 +1094,8 @@ bool SymExecutor::process_not(VMState *vm, InstrInfoPtr &infoptr) {
         assert(res);
     } else {
         ERRR_ME("Unexpected operands");
-        asm("int3");
+        assert(0);
+        // asm("int3");
     }
     res = vm->SaveFlagChangingInstructionExpr(e_not, oe) ;
     assert (res) ;
@@ -1132,7 +1148,9 @@ bool SymExecutor::process_pop(VMState *vm, InstrInfoPtr &infoptr) {
     assert (V.size==8) ;
 
 // debug log 20220512
+#ifdef _DEBUG_OUTPUT
     std::cout << "pop :" << std::hex << V.u64 << " " ;
+#endif
 // debug log 20220512
 
     MemValue MV;
@@ -1148,7 +1166,9 @@ bool SymExecutor::process_pop(VMState *vm, InstrInfoPtr &infoptr) {
     else {
         res = oisrc1->setConValue(vm, MV.u64) ;
 // debug log 20220512
+#ifdef _DEBUG_OUTPUT
         std::cout << std::hex << "0x" << MV.u64 << std::endl ;
+#endif
 // debug log 20220512         
     }
 
@@ -1188,7 +1208,9 @@ bool SymExecutor::process_push(VMState *vm, InstrInfoPtr &infoptr) {
     assert(res) ;
 
 // debug log 20220512
+#ifdef _DEBUG_OUTPUT
     std::cout << "push :" << std::hex << V.u64 << " " ;
+#endif
 // debug log 20220512
 
     MemValue MV;
@@ -1268,7 +1290,8 @@ bool SymExecutor::process_xchg(VMState *vm, InstrInfoPtr &infoptr) {
         assert(res);
     } else {
         ERRR_ME("Unexpected operands");
-        asm("int3");
+        assert(0);
+        // asm("int3");
     }
     // vm->SaveFlagChangingInstructionExpr(e_xchg, oe) ;
     return true;
@@ -1646,15 +1669,18 @@ bool SymExecutor::_parseOperand_RX(VMState *vm, DAPIInstrPtr& I, OprndInfoPtr &o
                 auto RS = A->eval();
                 assert(RS.defined);
                 // oi->mem_conaddr = RS.convert<ulong>();
-                
+#ifdef _DEBUG_OUTPUT                
                 std::cout << "read addr " << std::hex << RS.convert<ulong>() << std::endl;
+#endif
 
                 if (gs_base == 0)
                     oi->mem_conaddr = RS.convert<ulong>();
                 else
                     oi->mem_conaddr = RS.convert<ulong>() + gs_base;
 
+#ifdef _DEBUG_OUTPUT                
                 std::cout << "read addr " << std::hex << oi->mem_conaddr << std::endl;
+#endif
                 
                 MemValue MV{oi->mem_conaddr, oi->size};
                 MV.isSymList = true;
@@ -1677,7 +1703,8 @@ bool SymExecutor::_parseOperand_RX(VMState *vm, DAPIInstrPtr& I, OprndInfoPtr &o
         }
     } else if (O->isWritten()) {
         std::set<RegisterAST::Ptr> rdwrRegs;
-        asm("int3");
+        assert(0);
+        // asm("int3");
         oi->rdwr = OPAC_WR;
         O->getWriteSet(rdwrRegs);
         // Should be a register operand
@@ -1698,7 +1725,8 @@ bool SymExecutor::_parseOperand_XW(VMState *vm, DAPIInstrPtr& I, OprndInfoPtr &o
     DIAPIOperandPtr &O = oi->PO;
     if (O->isRead()) {
         std::set<RegisterAST::Ptr> rdwrRegs;
-        asm("int3");
+        assert(0);
+        // asm("int3");
         // Accessing an immeidate value, or reading a register
         oi->rdwr = OPAC_RD;
         O->getReadSet(rdwrRegs);
@@ -1795,7 +1823,8 @@ bool SymExecutor::_parseOperand_XW(VMState *vm, DAPIInstrPtr& I, OprndInfoPtr &o
             }
         }
     } else {
-        asm("int3");
+        assert(0);
+        // asm("int3");
         cerr << "345: Unexpected operand" << O->getValue()->format() << "\n";
         return false;
     }
@@ -1816,7 +1845,8 @@ bool SymExecutor::_parseOperand_RW(VMState *vm, DAPIInstrPtr& I, OprndInfoPtr &o
     std::set<RegisterAST::Ptr> rdwrRegs;
     O->getReadSet(rdwrRegs);
     if (rdwrRegs.size() == 0) {
-        asm("int3");
+        assert(0);
+        // asm("int3");
         // Direct memory access
         std::vector<Expression::Ptr> exps;
         auto V = O->getValue();
@@ -1848,7 +1878,8 @@ bool SymExecutor::_parseOperand_RW(VMState *vm, DAPIInstrPtr& I, OprndInfoPtr &o
 
         if (hasSymReg) {
             FIX_ME();
-            asm("int3");
+            assert(0);
+            // asm("int3");
             // At least, operand has one symbolic register;
             oi->symb = true;
             // oi->mem_address = SYMMEMADDR;
@@ -1959,7 +1990,9 @@ bool SymExecutor::setReadRegs(VMState *vm, DAPIInstr *I) {
         
         if (V.bsym) {
             // Do nothing
+#ifdef _DEBUG_OUTPUT
             cout << "123: " << P->format() << "\n";
+#endif
         } else {
             switch (size) {
                 case 8:

@@ -39,6 +39,7 @@ class ConExecutor {
 
     void* T_page;//The page for ana to execute T_Insn 
     char Jmp_RIP_Insn[6];
+    char Lea_RIP_Insn[7];
     // std::list<unsigned char> NopBytes = std::initializer_list<unsigned char>({0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90})
     unsigned char NopBytes[15] = {0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90};
 
@@ -46,8 +47,14 @@ class ConExecutor {
     bool bind_value_for_exp(Instruction* instr, Expression::Ptr target, struct pt_regs* regs);
     bool emul_cf_inst(Instruction* instr, InsnCategory Cate, struct pt_regs* regs);
     // bool RewRIPInsn(void* new_insn, char* orig_insn, Instruction* instr);
-    bool RewRIPInsn(void* orig_insn_addr, Instruction* instr);
+    // bool RewRIPInsn(void* orig_insn_addr, Instruction* instr);
+    int RewRIPInsn(void* T_insn, void* orig_insn_addr, Instruction* instr);
     bool ClearTinsn(void* T_addr, int size);
+
+    bool InsertInsnUpdateR15(void* nt_t_page, ulong newR15);
+
+    bool checkIfMemUseWriteReg(Instruction* in, std::set<int> writeRegIDs);
+    bool checkIfImplicitMemUseWriteReg(Instruction* in, std::set<int> writeRegIDs);
 
     /* /Jiaqi */
 
@@ -55,6 +62,8 @@ class ConExecutor {
     // ConExecutor() : m_IOIs() {}
     // ConExecutor(CodeRegion* m_cr, InstructionDecoder* decoder); 
     // ConExecutor(VMState* vm); 
+    // ConExecutor(CThinCtrl* m_tCtrl); 
+    CThinCtrl* m_ThinCtrl;
     ConExecutor(); 
     ~ConExecutor(){}; 
     // static ConExecutor *GetInstance(void);
@@ -73,7 +82,8 @@ class ConExecutor {
     // bool InsnDispatch(Instruction* instr);
     // bool InsnDispatch(Instruction* instr, struct pt_regs* regs, bool isRIP);
     bool InsnDispatch(Instruction* instr, struct pt_regs* regs);
-    // void BlockDispatch(ulong S_Addr, ulong E_Addr);
+    // bool BlockDispatch(Address S_Addr, Address E_Addr);
+    bool BlockDispatch(Address S_Addr, struct pt_regs* regs);
     /* /Jiaqi */
 
     // // bool pushInstr(DAPIInstr *I, std::vector<OprndInfo *> *vecOI);
