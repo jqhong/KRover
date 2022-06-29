@@ -1168,8 +1168,10 @@ loop:
     while (true)
     {
 #ifdef _DEBUG_OUTPUT
-        printf ("+++++m_regs->rip before BlockExecRIP: %lx. \n", m_regs->rip);
+        // printf ("+++++m_regs->rip before BlockExecRIP: %lx. \n", m_regs->rip);
 #endif
+
+        *saved_rip_ptr = nop_bytes;
 
         BlockExecRIP(m_regs);
 
@@ -1208,7 +1210,7 @@ loop:
             {
                 // *BlkExec_T_page = (unsigned long)(saved_rip + 21);
                 *BlkExec_T_page = (unsigned long)(saved_rip + 14);
-                *saved_rip_ptr = nop_bytes;
+                // *saved_rip_ptr = nop_bytes;
                 continue;
             }
 
